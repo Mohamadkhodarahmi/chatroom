@@ -9,6 +9,7 @@ const Dashboard = () => {
     const navigate = useNavigate();
     const [users, setUsers] = useState([]);
     const [messages, setMessages] = useState([])
+    const [user, setUser] = useState([])
 
     useEffect(()=>{
 
@@ -39,11 +40,47 @@ const Dashboard = () => {
                         navigate("/login");
                     });
                 } else {
-                    console.error("Error fetching user :", error);
+                    console.error("Error fetching users :", error);
                 }
             }
         };
         fetchUsers();
+
+    },[navigate])
+    useEffect(()=>{
+
+        const fetchUser = async () => {
+            try{
+                const token = localStorage.getItem("token");
+
+                if(!token){
+                    navigate('/login');
+                    return ;
+                }
+
+                const response = await axios.get("http://192.168.1.141:8000/api/user",{
+                    headers:{
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                setUser(response.data);
+
+            }catch(error){
+                if (error.response && error.response.status === 401) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Authentication Failed",
+                        text: "Please log in again.",
+                    }).then(() => {
+                        navigate("/login");
+                    });
+                } else {
+                    console.error("Error fetching user :", error);
+                }
+            }
+        };
+        fetchUser();
 
     },[navigate])
 
@@ -68,7 +105,7 @@ const Dashboard = () => {
                     }
 
                 });
-                setMessages(response.data);
+                setMessages(response.data.chats);
 
             }catch (error){
                 console.error('error fetching message' , error);
@@ -78,7 +115,7 @@ const Dashboard = () => {
     }, [navigate]);
     const sendMessage = async (message)=>{
         try {
-            const newMessage = {text:message,userId:1 , isMine:true};
+            const newMessage = {text:message,userId:3 , isMine:true};
             const response = await axios.post('http://192.168.1.141:8000/api/chats',newMessage);
             setMessages(messages.concat(response.data));
         }catch (error){
@@ -89,7 +126,7 @@ const Dashboard = () => {
     return (
         <div className="AppContainer">
             <Sidebar users={users}/>
-            <Chat users={users} messages={messages} sendMessage={sendMessage}/>
+            <Chat users={users} messages={messages} sendMessage={sendMessage} user={user}/>
 
         </div>
     )

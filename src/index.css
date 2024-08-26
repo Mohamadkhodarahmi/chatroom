@@ -156,3 +156,13 @@ body {
 .SendButton:hover {
   background-color: #0056b3;
 }
+.isMine{
+  background-color: #E5E5EA;
+  margin-left: auto;
+  text-align: right;
+}
+.isOther{
+  background-color: #DCF8C6;
+  margin-right: auto;
+  text-align: left;
+}
